@@ -1,0 +1,2 @@
+class DummyCache(dict):
+    pass
