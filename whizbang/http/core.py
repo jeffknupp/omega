@@ -1,5 +1,5 @@
 from werkzeug.wrappers import Request, Response
-from whizbang.http.views import View, TemplateView, StaticFileView
+from whizbang.http.views import TemplateView, StaticFileView, ResourceView
 from werkzeug.routing import Map, Rule
 
 class WebApplication(object):
@@ -13,9 +13,9 @@ class WebApplication(object):
         self.url_map.add(Rule(endpoint, endpoint=name))
         self._routes[name] = TemplateView(template_name)
 
-    def resource(self, name, endpoint):
-        self.url_map.add(Rule(endpoint, endpoint=name))
-        self._routes[name] = View(name, endpoint)
+    def resource(self, name, resource):
+        self.url_map.add(Rule('/' + name, endpoint=name))
+        self._routes[name] = ResourceView(name, resource)
 
     def dispatch_request(self, urls, request):
         response = urls.dispatch(

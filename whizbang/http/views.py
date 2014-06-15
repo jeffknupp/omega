@@ -1,10 +1,11 @@
 import json
 import os
+import uuid
 
 from jinja2 import Environment, FileSystemLoader
 
 from whizbang.http.cache import DummyCache
-from whizbang.http.utils import make_response
+from whizbang.http.utils import make_response, mimetype_for_path
 
 class TemplateView(object):
     def __init__(self, template_name):
@@ -15,28 +16,51 @@ class TemplateView(object):
         return make_response(self.template.render())
 
 class StaticFileView(object):
+
     def __call__(self, *args, **kwargs):
         file_path = kwargs['file_path']
         with open(os.path.join('static', file_path), 'r') as fh:
-            file_name = file_path.split('/')[-1]
-            if '.css' in file_name:
-                mimetype = 'text/css'
-            elif '.js' in file_name:
-                mimetype = 'script/js'
             response = make_response(fh.read())
-            response.headers['Content-type'] =  mimetype
+            response.headers['Content-type'] =  mimetype_for_path(file_path)
             return response
 
-class View(object):
-    def __init__(self, name, endpoint):
+class ResourceView(object):
+    def __init__(self, name, definition):
         self.name = name
-        self.endpoint = endpoint
+        self._definition = definition
+        self._cache = DummyCache()
         self._resources = set()
-        self._cache = DummyCache
 
     def __call__(self, request):
-        if request.path == self.endpoint:
+        if request.method == 'POST':
+            resource = json.loads(request.data)
+            error = self._validate_data(resource)
+            if error:
+                return bad_reqeust(error)
+            resource_id = str(uuid.uuid4())
+            resource['_id'] = resource_id
+            self._resources.add(resource_id)
+            self._cache[resource_id] = resource
+        if request.path == '/' + self.name:
             return self.all_resources()
+
+    def _validate_data(self, resource):
+        fields = set(resource.keys())
+        if fields - set(self._definition.keys()):
+            return 'Unknown fields: [{}]'.format(', '.join([f for f in fields - set(self._definition.keys())]))
+        for field, value in resource.items():
+            if field not in self._definition:
+                return 'Unknown field [{}]'.format(field)
+            if not isinstance(value, self._definition[field]['type']):
+                return 'Invalid type for field [{}]. Expected [{]] but got [{]]'.format(
+                    field,
+                    self._definition[field]['type'],
+                    type(value))
 
     def all_resources(self):
         return json.dumps([self._cache.get(r) for r in self._resources])
+
+def bad_reqeust(message):
+    response = make_response(json.dumps({'status': 'ERR', 'message': message}))
+    response.status_code = 400
+    return response
