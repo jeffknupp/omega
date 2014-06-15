@@ -46,13 +46,16 @@ class ResourceView(object):
 
     def _validate_data(self, resource):
         fields = set(resource.keys())
-        if fields - set(self._definition.keys()):
-            return 'Unknown fields: [{}]'.format(', '.join([f for f in fields - set(self._definition.keys())]))
+        defined_fields = set(self._definition.keys())
+        if fields - defined_fields:
+            return 'Unknown fields: [{}]'.format(', '.join([f for f in fields -  defined_fields]))
+        if defined_fields - fields:
+            return 'Missing fields [{}]'.format(', '.join([f for f in defined_fields - fields]))
         for field, value in resource.items():
             if field not in self._definition:
                 return 'Unknown field [{}]'.format(field)
             if not isinstance(value, self._definition[field]['type']):
-                return 'Invalid type for field [{}]. Expected [{]] but got [{]]'.format(
+                return 'Invalid type for field [{}]. Expected [{}] but got [{}]'.format(
                     field,
                     self._definition[field]['type'],
                     type(value))
