@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import logging
 
 import zmq
-import cloud
+import serialization
 
 from message import Message
 from config.settings import CONFIG
@@ -37,7 +37,7 @@ class delay(object):
         """Return the result of running the task *runnable* with the given
         arguments."""
         message = Message(
-                cloud.serialization.cloudpickle.dumps(runnable),
+                serialization.dumps(runnable),
                 args,
                 kwargs)
         LOGGER.info('Sending [{}] with args[{}] and kwargs[{}] to {}:{}'.format(
