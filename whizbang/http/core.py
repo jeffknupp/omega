@@ -1,5 +1,5 @@
 from werkzeug.wrappers import Request, Response
-from whizbang.http.views import TemplateView, StaticFileView, ResourceView
+from whizbang.http.views import TemplateView, StaticFileView, JSONResourceView
 from werkzeug.routing import Map, Rule
 
 class WebApplication(object):
@@ -7,16 +7,17 @@ class WebApplication(object):
         self.name = name
         self.url_map = Map([Rule('/static/<path:file_path>', endpoint='static')])
         self._routes = {'static': StaticFileView()}
+        self._engine = None
 
     def page(self, endpoint, template_name):
         name = template_name.split('.')[0]
         self.url_map.add(Rule(endpoint, endpoint=name))
         self._routes[name] = TemplateView(template_name)
 
-    def resource(self, name, resource):
+    def json_resource(self, name, resource):
         self.url_map.add(Rule('/' + name, endpoint=name))
         self.url_map.add(Rule('/' + name + '/<string:pk>', endpoint=name))
-        self._routes[name] = ResourceView(name, resource)
+        self._routes[name] = JSONResourceView(name, resource)
 
     def dispatch_request(self, urls, request):
         response = urls.dispatch(
@@ -34,6 +35,9 @@ class WebApplication(object):
         urls = self.url_map.bind_to_environ(environ)
         response = self.dispatch_request(urls, request)
         return response(environ, start_response)
+
+    def engine(self, engine):
+        self._engine = engine
 
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
