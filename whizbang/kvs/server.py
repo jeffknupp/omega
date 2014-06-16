@@ -11,6 +11,9 @@ class KVStore(object):
     def get(self, key):
         return self._store.get(key, None)
 
+    def delete(self, key):
+        del self._store[key]
+
 class Server(object):
     def __init__(self, port):
         context = zmq.Context()

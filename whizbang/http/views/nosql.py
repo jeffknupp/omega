@@ -5,17 +5,17 @@ import uuid
 
 from werkzeug import Response
 
-from whizbang.http.cache import DummyCache
+from whizbang.kvs.server import KVStore
 from whizbang.http.utils import make_response
 from whizbang.http.resource import DATE
 
 
-class JSONResourceView(object):
-    """View class for JSON-based resource routing."""
+class NoSQLResourceView(object):
+    """View class for NoSQLResourceView-based resource routing."""
     def __init__(self, name, definition):
         self.name = name
         self._definition = definition
-        self._cache = DummyCache()
+        self._cache = KVStore()
         self._resources = set()
 
     def __call__(self, request, primary_key=None):
@@ -39,7 +39,7 @@ class JSONResourceView(object):
                     headers={'Content-type': 'application/json'})
             else:
                 response = Response(
-                    json.dumps(self._cache[primary_key]),
+                    json.dumps(self._cache.get(primary_key)),
                     headers={'Content-type': 'application/json'})
             return response
 
@@ -53,7 +53,7 @@ class JSONResourceView(object):
         resource_id = str(uuid.uuid4())
         resource['_id'] = resource_id
         self._resources.add(resource_id)
-        self._cache[resource_id] = resource
+        self._cache.put(resource_id, resource)
         return Response(
             json.dumps(to_json(resource)),
             headers={'Content-type': 'application/json'})
@@ -61,12 +61,12 @@ class JSONResourceView(object):
     def handle_PUT(self, request, primary_key):
         """Return a :class:`werkzeug.Response` object after handling the PUT
         call."""
-        resource = self._cache[primary_key]
+        resource = self._cache.get(primary_key)
         resource.update(json.loads(request.data))
         error = self.validate_data(resource)
         if error:
             return bad_reqeust(error)
-        self._cache[primary_key] = resource
+        self._cache.put(primary_key, resource)
         return Response(
             json.dumps(to_json(resource)),
             headers={'Content-type': 'application/json'})
@@ -74,17 +74,17 @@ class JSONResourceView(object):
     def handle_PATCH(self, request, primary_key):
         """Return a :class:`werkzeug.Response` object after handling the PUT
         call."""
-        resource = self._cache[primary_key]
+        resource = self._cache.get(primary_key)
         resource.update(json.loads(request.data))
-        self._cache[primary_key] = resource
+        self._cache.put(primary_key, resource)
         return Response(
             json.dumps(to_json(resource)),
             headers={'Content-type': 'application/json'})
 
-    def handle_DELETE(self, request, pk):
+    def handle_DELETE(self, request, primary_key):
         """Return a :class:`werkzeug.Response` object after handling
         the DELETE call."""
-        del self._cache[pk]
+        self._cache.delete(primary_key)
         return Response(
             ('204 No Content'), headers={'Content-type': 'application/json'})
 

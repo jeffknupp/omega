@@ -5,7 +5,7 @@ from werkzeug.routing import Map, Rule
 
 from whizbang.http.views.template import TemplateView
 from whizbang.http.views.static import StaticFileView
-from whizbang.http.views.json import JSONResourceView
+from whizbang.http.views.nosql import NoSQLResourceView
 from whizbang.http.views.orm import ORMResourceView
 from whizbang.http.orm import Model
 
@@ -22,10 +22,10 @@ class WebApplication(object):
         self.url_map.add(Rule(endpoint, endpoint=name))
         self._routes[name] = TemplateView(template_name)
 
-    def json_resource(self, name, resource):
+    def nosql_resource(self, name, resource):
         self.url_map.add(Rule('/' + name, endpoint=name))
-        self.url_map.add(Rule('/' + name + '/<string:pk>', endpoint=name))
-        self._routes[name] = JSONResourceView(name, resource)
+        self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint=name))
+        self._routes[name] = NoSQLResourceView(name, resource)
 
     def orm_resource(self, name, cls):
         self.url_map.add(Rule('/' + name, endpoint=name))

@@ -7,7 +7,7 @@ import datetime
 DATE = re.compile("\d+-\d+-\d+ \d+:\d+:\d+")
 
 
-def json_resource_definition(resource_name):
+def nosql_resource_definition(resource_name):
     resource_definition = collections.defaultdict(dict)
     with open(os.path.join('resources', resource_name + '.js')) as fh:
         resource_file = json.loads(fh.read())
