@@ -11,13 +11,15 @@ from whizbang.http.cache import DummyCache
 from whizbang.http.utils import make_response, mimetype_for_path
 from whizbang.http.resource import DATE
 
+
 class TemplateView(object):
     def __init__(self, template_name):
         self.env = Environment(loader=FileSystemLoader('templates'))
         self.template = self.env.get_template(template_name)
-    
+
     def __call__(self, request):
         return make_response(self.template.render())
+
 
 class StaticFileView(object):
 
@@ -25,8 +27,9 @@ class StaticFileView(object):
         file_path = kwargs['file_path']
         with open(os.path.join('static', file_path), 'r') as fh:
             response = make_response(fh.read())
-            response.headers['Content-type'] =  mimetype_for_path(file_path)
+            response.headers['Content-type'] = mimetype_for_path(file_path)
             return response
+
 
 class ResourceView(object):
     def __init__(self, name, definition):
@@ -84,12 +87,11 @@ class ResourceView(object):
             json.dumps(self._to_json(resource)),
             headers={'Content-type': 'application/json'})
 
-
     def _validate_against_definition(self, fields):
         defined_fields = set(self._definition.keys())
         if fields - defined_fields:
             return 'Unknown fields [{}]'.format(
-                ', '.join([f for f in fields -  defined_fields]))
+                ', '.join([f for f in fields - defined_fields]))
         if defined_fields - fields:
             return 'Missing fields [{}]'.format(
                 ', '.join([f for f in defined_fields - fields]))
@@ -105,13 +107,15 @@ class ResourceView(object):
             if isinstance(value, (str, unicode)):
                 match = re.match(DATE, value)
                 if match and match.group(0):
-                    resource[field] = datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+                    resource[field] = datetime.datetime.strptime(
+                        value, '%Y-%m-%d %H:%M:%S')
                     value = resource[field]
             if not isinstance(value, self._definition[field]['type']):
-                return 'Invalid type for field [{}]. Expected [{}] but got [{}]'.format(
-                    field,
-                    self._definition[field]['type'],
-                    type(value))
+                return 'Invalid type for field [{}]. Expected [{}]' \
+                    'but got [{}]'.format(
+                        field,
+                        self._definition[field]['type'],
+                        type(value))
 
     def _to_json(self, resource):
         values = resource
@@ -121,7 +125,9 @@ class ResourceView(object):
         return values
 
     def all_resources(self):
-        return json.dumps([self._to_json(self._cache.get(r)) for r in self._resources])
+        return json.dumps(
+            [self._to_json(self._cache.get(r)) for r in self._resources])
+
 
 def bad_reqeust(message):
     response = make_response(json.dumps({'status': 'ERR', 'message': message}))
