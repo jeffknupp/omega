@@ -1,8 +1,9 @@
 """Test the app."""
 from whizbang.http.core import create_app
 from whizbang.http.resource import json_resource_definition
-from whizbang.orm import create_engine
+from whizbang.http.orm import create_engine
 from werkzeug import run_simple
+from resources import models
 
 if __name__ == '__main__':
     app = create_app(__name__)

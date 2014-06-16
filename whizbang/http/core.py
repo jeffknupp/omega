@@ -1,6 +1,11 @@
+from sqlalchemy.orm import sessionmaker
+
 from werkzeug.wrappers import Request, Response
-from whizbang.http.views import TemplateView, StaticFileView, JSONResourceView
 from werkzeug.routing import Map, Rule
+
+from whizbang.http.views import TemplateView, StaticFileView, JSONResourceView
+from whizbang.http.orm import Model
+
 
 class WebApplication(object):
     def __init__(self, name):
@@ -38,6 +43,8 @@ class WebApplication(object):
 
     def engine(self, engine):
         self._engine = engine
+        self.Session = sessionmaker(bind=engine)
+        Model.metadata.create_all(self._engine)
 
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
