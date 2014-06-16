@@ -22,15 +22,18 @@ class Worker(object):
         self._id = worker_id
         self._context = None
         self._socket = None
+        self._terminate = False
+
+    def terminate(self):
+        """Stop listening for tasks."""
+        self._terminate = True
 
     def start(self):
         """Start listening for tasks."""
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.REP)
-        self._socket.connect('tcp://{}:{}'.format(
-            CONFIG['back-end-host'],
-            CONFIG['back-end-port']))
-        while True:
+        self._socket.connect(CONFIG['bind_back'])
+        while not self._terminate:
             message = self._socket.recv_pyobj()
             runnable = pickle.loads(message.runnable_string)
             args = message.args

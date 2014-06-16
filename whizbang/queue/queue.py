@@ -3,9 +3,9 @@ from __future__ import absolute_import
 import logging
 
 import zmq
-import serialization
+from whizbang.queue import serialization
 
-from message import Message
+from whizbang.queue.message import Message
 from config.settings import CONFIG
 
 LOGGER = logging.getLogger(__name__)
@@ -56,17 +56,18 @@ class Result(object):
     def get(self):
         return self._runnable()
         
-if __name__ == '__main__':
-    context = zmq.Context()
+class Broker(object):
+    def __init__(self):
+        self._device = zmq.devices.MonitoredQueue(zmq.ROUTER, zmq.DEALER, zmq.PUB)
+        self._device.bind_in('tcp://{}:{}'.format(
+            CONFIG['front-end-host'],
+            CONFIG['front-end-port']))
+        self._device.bind_out('tcp://{}:{}'.format(
+            CONFIG['back-end-host'],
+            CONFIG['back-end-port']))
+        self._device.bind_mon('tcp://{}:{}'.format(
+            CONFIG['monitor-host'],
+            CONFIG['monitor-port']))
 
-    t = zmq.devices.MonitoredQueue(zmq.ROUTER, zmq.DEALER, zmq.PUB)
-    t.bind_in('tcp://{}:{}'.format(
-        CONFIG['front-end-host'],
-        CONFIG['front-end-port']))
-    t.bind_out('tcp://{}:{}'.format(
-        CONFIG['back-end-host'],
-        CONFIG['back-end-port']))
-    t.bind_mon('tcp://{}:{}'.format(
-        CONFIG['monitor-host'],
-        CONFIG['monitor-port']))
-    t.start()
+    def start(self):
+        self._device.start()
