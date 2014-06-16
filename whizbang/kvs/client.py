@@ -1,5 +1,7 @@
 import zmq
 
+from whizbang.kvs.message import CommandMessage
+
 class Client(object):
 
     def __init__(self, port):
@@ -8,19 +10,15 @@ class Client(object):
         self._socket.connect('tcp://localhost:{}'.format(port))
 
     def get(self, key):
-        message = {'command': 'get', 'key': key}
-        self._socket.send_json(message)
-        value = self._socket.recv_json()
-        print value
-        return value
-
-    def put(self, key, value):
-        message = {'command': 'put', 'key': key, 'value': value}
-        self._socket.send_json(message)
-        response = self._socket.recv_json()
-        print response
+        message = CommandMessage('get', key)
+        self._socket.send_pyobj(message)
+        response = self._socket.recv_pyobj()
+        print response.outcome, response.value
         return response
 
-c = Client(9000)
-c.put('foo', 'bar')
-c.get('foo')
+    def put(self, key, value):
+        message = CommandMessage('put', (key, value))
+        self._socket.send_pyobj(message)
+        response = self._socket.recv_pyobj()
+        print response.outcome, response.value
+        return response
