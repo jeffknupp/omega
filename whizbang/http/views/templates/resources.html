@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>All {{ name }}</h1>
+<h2>Create New</h2>
+<form role="form" class="form" action="/{{ name|lower }}" method="POST">
+    {% for field in form %}
+    <div class="form-group">
+        {{ field.label }}
+        {{ field(class="form-control") }}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-success">Submit</button>
+</form>
+<ul>
+{% for resource in resources %}
+<li><dl>
+    {% for column in resource.__table__.columns %}
+        <dt>{{ column }}</dt>
+        <dd>{{ resource|attr(column) }}</dd>
+    {% endfor %}
+</dl>
+</li>
+{% endfor %}
+</ul>
+
+{% endblock content %}
