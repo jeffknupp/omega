@@ -10,6 +10,9 @@ class User(Model):
     user_name = Column(String)
     joined_at = Column(DateTime, default=datetime.datetime.now())
 
+    def __str__(self):
+        return self.user_name
+
 class Tweet(Model):
     __tablename__ = 'tweet'
 

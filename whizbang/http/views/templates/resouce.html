@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<dl>
+{% for column in resource.__table__.columns %}
+    <dt>{{ column }}</dt>
+    <dd>{{ resource|attr(column) }}</dd>
+{% endfor %}
+</dl>

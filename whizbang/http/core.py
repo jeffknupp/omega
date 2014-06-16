@@ -29,9 +29,9 @@ class WebApplication(object):
 
     def orm_resource(self, name, cls):
         self.url_map.add(Rule('/' + name, endpoint=name))
-        self.url_map.add(Rule('/' + name + '/<string:pk>', endpoint=name))
-        self._routes[name] = ORMResourceView(name, cls)
-        
+        self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint=name))
+        self._routes[name] = ORMResourceView(name, cls, self.Session)
+
     def dispatch_request(self, urls, request):
         response = urls.dispatch(
             lambda e, v: self._routes[e](
