@@ -3,7 +3,10 @@ from sqlalchemy.orm import sessionmaker
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 
-from whizbang.http.views import TemplateView, StaticFileView, JSONResourceView
+from whizbang.http.views.template import TemplateView
+from whizbang.http.views.static import StaticFileView
+from whizbang.http.views.json import JSONResourceView
+from whizbang.http.views.orm import ORMResourceView
 from whizbang.http.orm import Model
 
 
@@ -24,6 +27,11 @@ class WebApplication(object):
         self.url_map.add(Rule('/' + name + '/<string:pk>', endpoint=name))
         self._routes[name] = JSONResourceView(name, resource)
 
+    def orm_resource(self, name, cls):
+        self.url_map.add(Rule('/' + name, endpoint=name))
+        self.url_map.add(Rule('/' + name + '/<string:pk>', endpoint=name))
+        self._routes[name] = ORMResourceView(name, cls)
+        
     def dispatch_request(self, urls, request):
         response = urls.dispatch(
             lambda e, v: self._routes[e](
