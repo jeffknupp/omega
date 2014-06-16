@@ -15,18 +15,20 @@ class WebApplication(object):
 
     def resource(self, name, resource):
         self.url_map.add(Rule('/' + name, endpoint=name))
+        self.url_map.add(Rule('/' + name + '/<string:pk>', endpoint=name))
         self._routes[name] = ResourceView(name, resource)
 
     def dispatch_request(self, urls, request):
         response = urls.dispatch(
             lambda e, v: self._routes[e](
-                request, **v), catch_http_exceptions=True)
+                request, **v))
         if isinstance(response, (unicode, str)):
             headers = {'Content-type': 'text/html'}
-            return Response(response, headers=headers)
-        elif isinstance(response, Response):
-            return response
-        
+            response = Response(response, headers=headers)
+        if not response:
+            response = Response('404 Not Found')
+        return response
+
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
         urls = self.url_map.bind_to_environ(environ)
