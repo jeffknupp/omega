@@ -5,7 +5,7 @@ def add(a, b):
     return a + b
 
 def main():
-    result = add.async(3, 4)
+    result = add.delay(3, 4, want_results=True)
     print result.get()
     print add(3, 4)
 
