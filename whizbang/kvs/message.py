@@ -9,3 +9,6 @@ class StatusMessage(object):
     def __init__(self, outcome, value=None):
         self.outcome = outcome
         self.value = value
+
+    def __eq__(self, other):
+        return self.outcome == other.outcome and self.value == other.value
