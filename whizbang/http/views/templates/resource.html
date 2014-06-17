@@ -3,10 +3,9 @@
 {% block content %}
 
 <dl>
-{% for column in resource.__table__.columns %}
-{% set colname = column.name %}
-    <dt>{{ colname }}</dt>
-    <dd>{{ resource.colname }}</dd>
+{% for column, value in resource %}
+<dt>{{ column }}</dt>
+<dd>{{ value }}</dd>
 {% endfor %}
 </dl>
 {% endblock %}

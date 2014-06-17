@@ -38,6 +38,8 @@ class ORMResourceView(object):
             else:
                 session = self._Session()
                 resource = session.query(self.cls).get(primary_key)
+                if not resource:
+                    return None
                 self.template = self.env.get_template('resource.html')
 
                 return make_response(self.template.render(resource=resource))

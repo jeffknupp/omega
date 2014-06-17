@@ -40,7 +40,9 @@ class WebApplication(object):
             headers = {'Content-type': 'text/html'}
             response = Response(response, headers=headers)
         if not response:
-            response = Response('404 Not Found')
+            headers = {'Content-type': 'text/html'}
+            response = Response('404 Not Found', headers=headers)
+            response.status_code = 404
         return response
 
     def wsgi_app(self, environ, start_response):
