@@ -19,7 +19,7 @@ class ORMResourceView(object):
         if not resource:
             return None
         self.template = self.env.get_template('resource.html')
-        return make_response(self.template.render(resource=resource))
+        return make_response(self.template.render(resource=resource, name=self.name))
 
     def handle_get_collection(self, request):
         session = self._Session()
@@ -32,11 +32,11 @@ class ORMResourceView(object):
     def handle_post(self, request):
         """Return a :class:`werkzeug.Response` object after handling the POST
         call."""
+        session = self._Session()
         resource = self.cls()
         form = self.form(request.form, resource)
         form.populate_obj(resource)
-        session = self._Session()
-        session.add(resource)
+        session.merge(resource)
         session.commit()
         return redirect(resource.url())
         

@@ -2,10 +2,14 @@
 
 {% block content %}
 
-<dl>
-{% for column, value in resource %}
-<dt>{{ column }}</dt>
-<dd>{{ value }}</dd>
-{% endfor %}
-</dl>
+    <h1>{{ name|capitalize }}</h1>
+    <hr/>
+    <div class="resource-list">
+        <dl>
+            {% for column, value in resource %}
+                <dt>{{ column }}</dt>
+                <dd>{{ value }}</dd>
+            {% endfor %}
+        </dl>
+    </div>
 {% endblock %}

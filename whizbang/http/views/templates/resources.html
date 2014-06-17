@@ -8,21 +8,27 @@
     {% for field in form %}
     <div class="form-group">
         {{ field.label }}
-        {{ field(class="form-control") }}
+        {{ field }}
     </div>
     {% endfor %}
     <button type="submit" class="btn btn-success">Submit</button>
 </form>
-<ul>
-{% for resource in resources %}
-<li><dl>
-    {% for column, value in resource %}
-        <dt>{{ column }}</dt>
-        <dd>{{ value }}</dd>
+<table class="table">
+    <thead>
+        <th>Go</th>
+        {% for column, value in resources[0] %}
+            <th>{{ column }}</th>
+        {% endfor %}
+    </thead>
+    <tbody>
+    {% for resource in resources %}
+    <tr><td><a href="{{ resource.url() }}"><i class="fa fa-arrow-right"></i></a></td>
+            {% for column, value in resource %}
+                <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
     {% endfor %}
-</dl>
-</li>
-{% endfor %}
-</ul>
+    </tbody>
+</table>
 
 {% endblock content %}
