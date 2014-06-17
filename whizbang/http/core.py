@@ -27,10 +27,22 @@ class WebApplication(object):
         self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint=name))
         self._routes[name] = NoSQLResourceView(name, resource)
 
-    def orm_resource(self, name, cls):
-        self.url_map.add(Rule('/' + name, endpoint=name))
-        self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint=name))
-        self._routes[name] = ORMResourceView(name, cls, self.Session)
+    def orm_resource(self, cls):
+        name = cls.endpoint()[1:]
+        orm_view = ORMResourceView(name, cls, self.Session)
+        self.url_map.add(Rule('/' + name, endpoint='get_{}s'.format(name), methods=['GET']))
+        self.url_map.add(Rule('/' + name, endpoint='post_{}'.format(name), methods=['POST']))
+        self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint='get_{}'.format(name), methods=['GET']))
+        self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint='put_{}'.format(name), methods=['PUT']))
+        self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint='patch_{}'.format(name), methods=['PATCH']))
+        self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint='delete_{}'.format(name), methods=['DELETE']))
+        self._routes['get_{}s'.format(name)] = orm_view.handle_get_collection
+        self._routes['get_{}'.format(name)] = orm_view.handle_get
+        self._routes['put_{}'.format(name)] = orm_view.handle_put
+        self._routes['patch_{}'.format(name)] = orm_view.handle_patch
+        self._routes['delete_{}'.format(name)] = orm_view.handle_delete
+        self._routes['post_{}'.format(name)] = orm_view.handle_post
+
 
     def dispatch_request(self, urls, request):
         response = urls.dispatch(
