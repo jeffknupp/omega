@@ -20,7 +20,8 @@ class Resource(object):
         return cls.__endpoint__ or '/' + cls.__tablename__
 
     def url(self):
-        url = '/' + self.__endpoint__ + '/'
-        url += getattr(self, self.__table__.primary_key.name)
+        url = self.endpoint() + '/'
+        url += str(getattr(self, self.__table__.primary_key.columns.values()[0].name))
+        return url
 
 Model = declarative_base(cls=(Resource,))

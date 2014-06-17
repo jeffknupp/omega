@@ -1,4 +1,5 @@
 from jinja2 import Environment, PackageLoader
+from werkzeug import redirect
 from wtforms.ext.sqlalchemy.orm import model_form
 
 from whizbang.http.utils import make_response
@@ -37,7 +38,7 @@ class ORMResourceView(object):
         session = self._Session()
         session.add(resource)
         session.commit()
-        return 
+        return redirect(resource.url())
         
     def handle_put(self, request, primary_key):
         """Return a :class:`werkzeug.Response` object after handling the PUT

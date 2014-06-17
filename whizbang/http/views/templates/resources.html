@@ -16,9 +16,9 @@
 <ul>
 {% for resource in resources %}
 <li><dl>
-    {% for column in resource.__table__.columns %}
+    {% for column, value in resource %}
         <dt>{{ column }}</dt>
-        <dd>{{ resource|attr(column) }}</dd>
+        <dd>{{ value }}</dd>
     {% endfor %}
 </dl>
 </li>
