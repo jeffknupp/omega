@@ -2,17 +2,19 @@
 
 {% block content %}
 
-<h1>All {{ name }}</h1>
-<h2>Create New</h2>
-<form role="form" class="form" action="/{{ name|lower }}" method="POST">
-    {% for field in form %}
-    <div class="form-group">
-        {{ field.label }}
-        {{ field }}
-    </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-success">Submit</button>
-</form>
+<h1>All {{ name }}s</h1>
+<div class="form-panel">
+    <h2 class="text-center">Create New {{ name }}</h2>
+    <form role="form" class="form" action="/{{ name|lower }}" method="POST">
+        {% for field in form %}
+        <div class="form-group">
+            {{ field.label }}
+            {{ field }}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</div>
 <table class="table">
     <thead>
         <th>Go</th>

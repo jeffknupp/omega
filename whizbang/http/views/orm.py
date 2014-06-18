@@ -19,7 +19,8 @@ class ORMResourceView(object):
         if not resource:
             return None
         self.template = self.env.get_template('resource.html')
-        return make_response(self.template.render(resource=resource, name=self.name))
+        form = self.form(request.form, resource)
+        return make_response(self.template.render(resource=resource, name=self.name, form=form))
 
     def handle_get_collection(self, request):
         session = self._Session()
@@ -29,11 +30,14 @@ class ORMResourceView(object):
         return make_response(self.template.render(resources=resources, form=self.form(), name=self.cls.__name__))
         return resources
 
-    def handle_post(self, request):
+    def handle_post(self, request, primary_key=None):
         """Return a :class:`werkzeug.Response` object after handling the POST
         call."""
         session = self._Session()
-        resource = self.cls()
+        if primary_key is not None:
+            resource = session.query(self.cls).get(primary_key)
+        else:
+            resource = self.cls()
         form = self.form(request.form, resource)
         form.populate_obj(resource)
         session.merge(resource)
@@ -78,12 +82,10 @@ class ORMResourceView(object):
 
     def handle_delete(self, request, primary_key):
         """Return a :class:`werkzeug.Response` object after handling
-        the DELETE call."""
+        the DELETE call or a POST to /delete."""
+        print 'here'
         session = self._Session()
         resource = session.query(self.cls).get(primary_key)
         session.delete(resource)
         session.commit()
-        resources = session.query(self.cls).all(primary_key)
-        self.template = self.env.get_template('resources.html')
-
-        return make_response(self.template.render(resources=resources))
+        return redirect('/' + self.name)

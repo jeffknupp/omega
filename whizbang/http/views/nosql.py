@@ -46,10 +46,13 @@ class NoSQLResourceView(object):
     def handle_POST(self, request):
         """Return a :class:`werkzeug.Response` object after handling the POST
         call."""
-        resource = json.loads(request.data)
+        try:
+            resource = json.loads(request.data)
+        except ValueError:
+            return bad_request('No JSON object detected')
         error = self.validate_data(resource)
         if error:
-            return bad_reqeust(error)
+            return bad_request(error)
         resource_id = str(uuid.uuid4())
         resource['_id'] = resource_id
         self._resources.add(resource_id)
@@ -65,7 +68,7 @@ class NoSQLResourceView(object):
         resource.update(json.loads(request.data))
         error = self.validate_data(resource)
         if error:
-            return bad_reqeust(error)
+            return bad_request(error)
         self._cache.put(primary_key, resource)
         return Response(
             json.dumps(to_json(resource)),
@@ -137,7 +140,8 @@ def to_json(resource):
     return values
 
 
-def bad_reqeust(message):
+def bad_request(message):
     response = make_response(json.dumps({'status': 'ERR', 'message': message}))
     response.status_code = 400
+    response.headers = {'Content-type': 'application/json'}
     return response

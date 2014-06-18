@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Available Routes</h1>
+<ul class="list-group">
+    {% for route in routes %}
+    <div class="route">
+        <li class="list-group-item">
+            <h2><a href="/{{ route}}">/{{ route }}</a></h2>
+        </li>
+    </div>
+    {% endfor %}
+</ul>
+{% endblock content %}

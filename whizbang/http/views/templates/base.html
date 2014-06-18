@@ -8,7 +8,7 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
 
-    <title>Valere</title>
+    <title>Whizbang!</title>
 
     <!-- jQuery -->
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
@@ -19,10 +19,30 @@
     <!-- Bootstrap core CSS -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap core CSS -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap core JS -->
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
+    <!-- Roboto font -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,900' rel='stylesheet' type='text/css'>
+    <style>
+        body {
+            font-family: "Roboto";
+        }
+        header {
+            text-align: center;
+        }
+        header h1 {
+            font-size: 38px;
+            font-weight: 900;
+            background-color: #f4f4f4;
+        }
+        .form-panel {
+            padding: 10px;
+        }
+    </style>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -31,28 +51,30 @@
     {% block head %}
     {% endblock head %}
 </head>
+    <body>
+        <header>
+            <h1>WHIZBANG!</h1>
+            <hr/>
+        </header>
+        <div class="container-fluid">
+            <div class="col-md-8 col-md-offset-2">
+            {% if messages %}
+                <div class="alert alert-danger">
+                    <strong>Error:</strong>
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{message}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
 
-<body>
 
-<div class="container-fluid">
-    <div class="col-md-8 col-md-offset-2">
-    {% if messages %}
-        <div class="alert alert-danger">
-            <strong>Error:</strong>
-            <ul>
-                {% for message in messages %}
-                    <li>{{message}}</li>
-                {% endfor %}
-            </ul>
+            {% block content %}
+            {% endblock %}
+            {% block extra_body %}
+            {% endblock extra_body %}
+            </div>
         </div>
-    {% endif %}
-
-
-    {% block content %}
-    {% endblock %}
-    {% block extra_body %}
-    {% endblock extra_body %}
-    </div>
-</div>
-</body>
+    </body>
 </html>
