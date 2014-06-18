@@ -37,6 +37,7 @@ class ORMResourceView(object):
         form = self.form(request.form, resource)
         form.populate_obj(resource)
         session.merge(resource)
+        session.add(resource)
         session.commit()
         return redirect(resource.url())
         
