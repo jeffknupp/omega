@@ -1,6 +1,6 @@
 # Whizbang!
 
-**Whizbang - The web *platform* that "has an app for that"
+**Whizbang - The web *platform* that "has an app for that"**
 
 ## What is Whizbang?
 
