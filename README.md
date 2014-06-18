@@ -70,8 +70,16 @@ class Twoot(Model):
 
 This gives you the following, for free:
 
+###### Homepage
+
 ![Home page shot](/images/home.png)
+
+###### List of objects
+
 ![Resources shot](/images/resources.png)
+
+###### View/edit object
+
 ![Single object shot](/images/resource.png)
 
 ##### NoSQL REST API application
