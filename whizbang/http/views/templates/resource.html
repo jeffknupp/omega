@@ -11,7 +11,9 @@
             {{ field }}
         </div>
         {% endfor %}
-        <button type="submit" class="btn btn-success">Update</button>
+        <div class="form-group">
+            <button type="submit" class="btn btn-success">Update</button>
+        </div>
     </form>
 
     <form method="post" action="{{ resource.url() }}/delete">

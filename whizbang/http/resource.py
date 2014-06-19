@@ -1,26 +1,70 @@
-import collections
 import os
 import json
 import re
 import datetime
-import glob
 
 DATE = re.compile("\d+-\d+-\d+ \d+:\d+:\d+")
 
-def nosql_resource_definition(resource_directory):
-    resource_definition = collections.defaultdict(dict)
-    for file_name in glob.glob(os.path.join(resource_directory, '*.js')):
-        with open(file_name, 'r') as fh:
+
+class NoSQLResource(object):
+
+    def __init__(self, name, store=None):
+        self.fields = {}
+        self.name = name
+        self.store = None
+        self._generate_resource_definition()
+
+    def set_store(self, store):
+        self.store = store
+
+    def _generate_resource_definition(self):
+        with open(os.path.join('resources', self.name + '.js'), 'r') as fh:
             resource_file = json.loads(fh.read())
             for key, value in resource_file.items():
                 if value.startswith('#'):
-                resource_definition[key]['example'] = value
-                resource_definition[key]['type'] = type(value)
-                if isinstance(value, (str, unicode)):
+                    self.fields[key] = NoSQLObjectReference(key, NoSQLResource)
+                elif isinstance(value, (str, unicode)):
                     match = re.match(DATE, value)
                     if match and match.group(0):
-                        resource_definition[key]['type'] = datetime.datetime
-    return resource_definition
+                        self.fields[key] = NoSQLField(key, datetime.datetime, value)
+                else:
+                    self.fields[key] = NoSQLField(key, datetime.datetime, value)
+
+    def set(self, *args, **kwargs):
+        for name in self.fields:
+            self.fields[name] = kwargs[name]
+
+    def get(self):
+        values = {}
+        for name in self.fields:
+            values[name] = self.fields[name].get()
+
+
+class NoSQLField(object):
+
+    def __init__(self, name, field_type, example=None, value=None):
+        self.name = name
+        self.type = field_type
+        self.example = example
+        self.value = value
+
+    def example(self):
+        print {self.name: self.example}
+
+    def get(self):
+        return self.value()
+
+
+class NoSQLObjectReference(NoSQLField):
+
+    def __init__(self, name, field_type, example=None, value=None):
+        self.name = name
+        self.type = field_type
+        self.example = example
+        self.object_id = value
+
+    def get(self, store):
+        return store.get((self.type, self.object_id))
 
 
 def define_resources(app, resources):

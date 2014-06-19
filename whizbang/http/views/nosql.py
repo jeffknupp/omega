@@ -12,10 +12,9 @@ from whizbang.http.resource import DATE
 
 class NoSQLResourceView(object):
     """View class for NoSQLResourceView-based resource routing."""
-    def __init__(self, name, definition):
+    def __init__(self, name, definition, store=KVStore()):
         self.name = name
-        self._definition = definition
-        self._cache = KVStore()
+        self._cache = store
         self._resources = set()
 
     def __call__(self, request, primary_key=None):
