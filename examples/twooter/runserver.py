@@ -1,15 +1,18 @@
 """Code for the Twooter application."""
 from whizbang.http.core import create_app
-from whizbang.http.resource import NoSQLResource
-from whizbang.http.orm import create_engine
-from werkzeug import run_simple
+import werkzeug.serving
 
-if __name__ == '__main__':
-    app = create_app(__name__)
-    app.engine(create_engine('sqlite+pysqlite:///db.sqlite3'))
-    app.nosql_resource(NoSQLResource('twoot'))
-    app.nosql_resource(NoSQLResource('user'))
-    #app.orm_resource(Twoot)
-    #app.orm_resource(User)
-    #app.auto_generate_home()
-    run_simple('127.0.0.1', 5000, app, use_debugger=True, use_reloader=True)
+import werkzeug.serving
+from gevent import monkey
+from socketio.server import SocketIOServer
+
+app = create_app(__name__)
+monkey.patch_all()
+
+app.auto_generate_home()
+
+@werkzeug.serving.run_with_reloader
+def run_dev_server():
+    app.debug = True
+    port = 6020
+    SocketIOServer(('', port), app, resource="socket.io").serve_forever()

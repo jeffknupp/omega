@@ -7,10 +7,27 @@ from werkzeug import run_simple
 from whizbang.http.views.template import TemplateView
 from whizbang.http.views.static import StaticFileView
 from whizbang.http.views.nosql import NoSQLResourceView
+from socketio.namespace import BaseNamespace
 from whizbang.http.views.orm import ORMResourceView
 from whizbang.http.views.generated import GeneratedIndexView
 from whizbang.http.orm import Model
 
+from socketio import socketio_manage
+class ShoutsNamespace(BaseNamespace):
+    sockets = {}
+    def recv_connect(self):
+        print "Got a socket connection" # debug
+        self.sockets[id(self)] = self
+    def disconnect(self, *args, **kwargs):
+        print "Got a socket disconnection" # debug
+        if id(self) in self.sockets:
+            del self.sockets[id(self)]
+        super(ShoutsNamespace, self).disconnect(*args, **kwargs)
+    # broadcast to all sockets on this channel!
+    @classmethod
+    def broadcast(self, event, message):
+        for ws in self.sockets.values():
+            ws.emit(event, message)
 
 class WebApplication(object):
     def __init__(self, name):
@@ -27,10 +44,10 @@ class WebApplication(object):
         self.url_map.add(Rule(endpoint, endpoint=name))
         self._routes[name] = TemplateView(template_name)
 
-    def nosql_resource(self, name, resource):
-        self.url_map.add(Rule('/' + name, endpoint=name))
-        self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint=name))
-        self._routes[name] = NoSQLResourceView(name, resource)
+    def nosql_resource(self, resource):
+        self.url_map.add(Rule('/' + resource.name, endpoint=resource.name))
+        self.url_map.add(Rule('/' + resource.name + '/<string:primary_key>', endpoint=resource.name))
+        self._routes[resource.name] = NoSQLResourceView(resource)
 
     def orm_resource(self, cls):
         name = cls.endpoint()[1:]
@@ -56,17 +73,31 @@ class WebApplication(object):
         self._routes['home'] = GeneratedIndexView(self._orm_resources)
 
     def dispatch_request(self, urls, request):
-        response = urls.dispatch(
+        if request.path.startswith('/socket.io'):
+            try:
+                socketio_manage(request.environ, {'/shouts': ShoutsNamespace}, request)
+            except:
+                print("Exception while handling socketio connection")
+            return Response()
+        elif request.path.startswith('/shout'):
+            message = request.args.get('msg', None)
+            if message:
+                ShoutsNamespace.broadcast('message', message)
+                return Response("Message shouted!")
+            else:
+                return Response("Please specify your message in the 'msg' parameter")
+        else:
+            response = urls.dispatch(
             lambda e, v: self._routes[e](
-                request, **v))
-        if isinstance(response, (unicode, str)):
-            headers = {'Content-type': 'text/html'}
-            response = Response(response, headers=headers)
-        if not response:
-            headers = {'Content-type': 'text/html'}
-            response = Response('404 Not Found', headers=headers)
-            response.status_code = 404
-        return response
+                    request, **v))
+            if isinstance(response, (unicode, str)):
+                headers = {'Content-type': 'text/html'}
+                response = Response(response, headers=headers)
+            if not response:
+                headers = {'Content-type': 'text/html'}
+                response = Response('404 Not Found', headers=headers)
+                response.status_code = 404
+            return response
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
@@ -78,6 +109,14 @@ class WebApplication(object):
         self._engine = engine
         self.Session = sessionmaker(bind=engine)
         Model.metadata.create_all(self._engine)
+
+    def route(self, rule, **options):
+        def decorator(f):
+            endpoint = options.pop('endpoint', None)
+            self.url_map.add(Rule(rule, endpoint=endpoint))
+            self._routes[endpoint] = f
+            return f
+        return decorator
 
     def run(self, host='127.0.0.1', port=5000):
         run_simple(host, port, self, use_debugger=True, use_reloader=True)

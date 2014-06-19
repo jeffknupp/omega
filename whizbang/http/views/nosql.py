@@ -12,24 +12,25 @@ from whizbang.http.resource import DATE
 
 class NoSQLResourceView(object):
     """View class for NoSQLResourceView-based resource routing."""
-    def __init__(self, name, definition, store=KVStore()):
-        self.name = name
+    def __init__(self, resource, store=KVStore()):
+        self.name = resource.name
+        self._resource = resource
         self._cache = store
         self._resources = set()
 
     def __call__(self, request, primary_key=None):
         if request.method == 'POST':
-            return self.handle_POST(request)
+            return self.handle_post(request)
         elif request.method == 'PUT':
-            return self.handle_PUT(request, primary_key)
+            return self.handle_put(request, primary_key)
         elif request.method == 'PATCH':
-            return self.handle_PATCH(request, primary_key)
+            return self.handle_patch(request, primary_key)
         elif request.method == 'DELETE':
-            return self.handle_DELETE(request, primary_key)
+            return self.handle_delete(request, primary_key)
         elif request.method == 'HEAD':
-            return self.handle_HEAD(request)
+            return self.handle_head(request)
         elif request.method == 'OPTIONS':
-            return self.handle_OPTIONS(request)
+            return self.handle_options(request)
 
         elif request.method == 'GET':
             if not primary_key:
@@ -42,7 +43,7 @@ class NoSQLResourceView(object):
                     headers={'Content-type': 'application/json'})
             return response
 
-    def handle_POST(self, request):
+    def handle_post(self, request):
         """Return a :class:`werkzeug.Response` object after handling the POST
         call."""
         try:
@@ -60,7 +61,7 @@ class NoSQLResourceView(object):
             json.dumps(to_json(resource)),
             headers={'Content-type': 'application/json'})
 
-    def handle_PUT(self, request, primary_key):
+    def handle_put(self, request, primary_key):
         """Return a :class:`werkzeug.Response` object after handling the PUT
         call."""
         resource = self._cache.get(primary_key)
@@ -73,7 +74,7 @@ class NoSQLResourceView(object):
             json.dumps(to_json(resource)),
             headers={'Content-type': 'application/json'})
 
-    def handle_PATCH(self, request, primary_key):
+    def handle_patch(self, request, primary_key):
         """Return a :class:`werkzeug.Response` object after handling the PUT
         call."""
         resource = self._cache.get(primary_key)
@@ -83,7 +84,7 @@ class NoSQLResourceView(object):
             json.dumps(to_json(resource)),
             headers={'Content-type': 'application/json'})
 
-    def handle_DELETE(self, request, primary_key):
+    def handle_delete(self, request, primary_key):
         """Return a :class:`werkzeug.Response` object after handling
         the DELETE call."""
         self._cache.delete(primary_key)
@@ -93,7 +94,7 @@ class NoSQLResourceView(object):
     def validate_against_definition(self, fields):
         """Return an error message if there are extra or missing fields on the
         message."""
-        defined_fields = set(self._definition.keys())
+        defined_fields = set(self._resource.fields.keys())
         if fields - defined_fields:
             return 'Unknown fields [{}]'.format(
                 ', '.join([f for f in fields - defined_fields]))
@@ -109,7 +110,7 @@ class NoSQLResourceView(object):
         if error:
             return error
         for field, value in resource.items():
-            if field not in self._definition:
+            if field not in self._fields.keys:
                 return 'Unknown field [{}]'.format(field)
             if isinstance(value, (str, unicode)):
                 match = re.match(DATE, value)

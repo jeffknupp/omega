@@ -1,14 +1,53 @@
-{% extends "base.html" %}
+<!doctype html>
+<html>
+    <head>
+        <title>Sockets</title>
 
-{% block content %}
-<h1>Available Routes</h1>
-<ul class="list-group">
-    {% for route in routes %}
-    <div class="route">
-        <li class="list-group-item">
-            <h2><a href="/{{ route}}">/{{ route }}</a></h2>
-        </li>
-    </div>
-    {% endfor %}
-</ul>
-{% endblock content %}
+        <!-- standard js libs -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+
+        <!-- our main js and css -->
+        <script>
+            addMessage = function(text) {
+                var div = $("<div>").addClass("msg").text(text);
+                $("#target").prepend(div);
+            }
+
+            $(document).ready(function() {
+                var socket = io.connect('/shouts');
+                socket.on('connect', function() {
+                    console.log("socket connected");
+                });
+                socket.on('disconnect', function() {
+                    console.log("socket disconnected");
+                });
+
+                socket.on('message', function(data) {
+                    console.log("Got message:", data);
+                    addMessage(data);
+                });
+            });
+        </script>
+        <style>
+        .container {
+            padding: 20px;
+            margin: 20px;
+        }
+
+        #target .msg {
+            color: hsl(40, 90%, 48%);
+            font-size: 20pt;
+        }
+        </style>
+
+    </head>
+    <body>
+        <div class="container">
+            <p>Hello sockets</p>
+            <div id="target">
+                <!-- messages we receive through sockets will be here -->
+            </div>
+        </div>
+    </body>
+</html>
