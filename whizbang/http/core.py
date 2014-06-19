@@ -2,6 +2,7 @@ from sqlalchemy.orm import sessionmaker
 
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
+from werkzeug import run_simple
 
 from whizbang.http.views.template import TemplateView
 from whizbang.http.views.static import StaticFileView
@@ -17,6 +18,8 @@ class WebApplication(object):
         self.url_map = Map([Rule('/static/<path:file_path>', endpoint='static')])
         self._routes = {'static': StaticFileView()}
         self._engine = None
+        self.debug = None
+        self.config = {'SERVER_NAME': 'localhost'}
         self._orm_resources = []
 
     def page(self, endpoint, template_name):
@@ -76,6 +79,8 @@ class WebApplication(object):
         self.Session = sessionmaker(bind=engine)
         Model.metadata.create_all(self._engine)
 
+    def run(self, host='127.0.0.1', port=5000):
+        run_simple(host, port, self, use_debugger=True, use_reloader=True)
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
 
