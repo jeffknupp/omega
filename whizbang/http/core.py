@@ -13,21 +13,6 @@ from whizbang.http.views.generated import GeneratedIndexView
 from whizbang.http.orm import Model
 
 from socketio import socketio_manage
-class ShoutsNamespace(BaseNamespace):
-    sockets = {}
-    def recv_connect(self):
-        print "Got a socket connection" # debug
-        self.sockets[id(self)] = self
-    def disconnect(self, *args, **kwargs):
-        print "Got a socket disconnection" # debug
-        if id(self) in self.sockets:
-            del self.sockets[id(self)]
-        super(ShoutsNamespace, self).disconnect(*args, **kwargs)
-    # broadcast to all sockets on this channel!
-    @classmethod
-    def broadcast(self, event, message):
-        for ws in self.sockets.values():
-            ws.emit(event, message)
 
 class WebApplication(object):
     def __init__(self, name):
@@ -38,6 +23,7 @@ class WebApplication(object):
         self.debug = None
         self.config = {'SERVER_NAME': 'localhost'}
         self._orm_resources = []
+        self._namespaces = {}
 
     def page(self, endpoint, template_name):
         name = template_name.split('.')[0]
@@ -68,24 +54,24 @@ class WebApplication(object):
         self._routes['delete_{}'.format(name)] = orm_view.handle_delete
         self._routes['post_{}'.format(name)] = orm_view.handle_post
 
+    def namespace(self, endpoint, namespace_class):
+        self._namespaces[endpoint] = namespace_class
+
     def auto_generate_home(self):
         self.url_map.add(Rule('/', endpoint='home'))
         self._routes['home'] = GeneratedIndexView(self._orm_resources)
 
+    def route(self, endpoint, function):
+        self.url_map.add(Rule(endpoint, endpoint=endpoint))
+        self._routes[endpoint] = function
+
     def dispatch_request(self, urls, request):
         if request.path.startswith('/socket.io'):
             try:
-                socketio_manage(request.environ, {'/shouts': ShoutsNamespace}, request)
+                socketio_manage(request.environ, self._namespaces, request)
             except:
                 print("Exception while handling socketio connection")
             return Response()
-        elif request.path.startswith('/shout'):
-            message = request.args.get('msg', None)
-            if message:
-                ShoutsNamespace.broadcast('message', message)
-                return Response("Message shouted!")
-            else:
-                return Response("Please specify your message in the 'msg' parameter")
         else:
             response = urls.dispatch(
             lambda e, v: self._routes[e](
@@ -109,14 +95,6 @@ class WebApplication(object):
         self._engine = engine
         self.Session = sessionmaker(bind=engine)
         Model.metadata.create_all(self._engine)
-
-    def route(self, rule, **options):
-        def decorator(f):
-            endpoint = options.pop('endpoint', None)
-            self.url_map.add(Rule(rule, endpoint=endpoint))
-            self._routes[endpoint] = f
-            return f
-        return decorator
 
     def run(self, host='127.0.0.1', port=5000):
         run_simple(host, port, self, use_debugger=True, use_reloader=True)
