@@ -12,12 +12,14 @@ from werkzeug import run_simple
 from whizbang.http.views.template import TemplateView
 from whizbang.http.views.static import StaticFileView
 from whizbang.http.views.nosql import NoSQLResourceView
-from socketio.namespace import BaseNamespace
 from whizbang.http.views.orm import ORMResourceView
 from whizbang.http.views.generated import GeneratedIndexView
 from whizbang.http.orm import Model
+from werkzeug.wsgi import SharedDataMiddleware
 
+from socketio.server import SocketIOServer
 from socketio import socketio_manage
+
 
 class WebApplication(object):
     """A WSGI application object responsible for handling requests.
@@ -104,14 +106,18 @@ class WebApplication(object):
         self.url_map.add(Rule('/', endpoint='home'))
         self._routes['home'] = GeneratedIndexView(self._orm_resources)
 
-    def route(self, endpoint, function):
+    def route(self, rule, **kwargs):
         """Register *function* to handle requests to *endpoint*.
 
         :param str endpoint: The endpoint (i.e. `/foo/bar`) to register.
         :param function: The view function to handle requests.
         """
-        self.url_map.add(Rule(endpoint, endpoint=endpoint))
-        self._routes[endpoint] = function
+        def decorator(f):
+            methods = kwargs.pop('methods', None)
+            self.url_map.add(Rule(rule, endpoint=rule, methods=methods, *kwargs))
+            self._routes[rule] = f
+            return f
+        return decorator
 
     def dispatch_request(self, urls, request):
         """Dispatch the incoming *request* to the given view function or class.
@@ -165,14 +171,17 @@ class WebApplication(object):
         self.Session = sessionmaker(bind=engine)
         Model.metadata.create_all(self._engine)
 
-    def run(self, host='127.0.0.1', port=5000):
+    def run(self, host='127.0.0.1', port=5000, debug=None):
         """Run the application at the given host and port.
-        
+
         :param str host: The hostname to run the application on.
         :param int port: The port to run the application on.
         """
 
-        run_simple(host, port, self, use_debugger=True, use_reloader=True)
+        if debug is not None:
+            self.debug = debug
+        SocketIOServer(('0.0.0.0', 5000), SharedDataMiddleware(self, {}),
+            namespace="socket.io", policy_server=False).serve_forever()
 
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)

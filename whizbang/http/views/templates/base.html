@@ -25,9 +25,54 @@
     <!-- Bootstrap core JS -->
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
+    <!-- Socketio core JS -->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+
     <!-- Roboto font -->
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,900' rel='stylesheet' type='text/css'>
-    <style>
+
+    <!-- our main js and css -->
+        <script>
+            addMessage = function(text) {
+                var div = $("<div>").addClass("msg").text(text);
+                $("#target").append(div);
+            }
+            $(document).ready(function() {
+                var socket = io.connect('/chats');
+                socket.on('connect', function() {
+                    console.log("socket connected");
+                });
+                socket.on('disconnect', function() {
+                    console.log("socket disconnected");
+                });
+
+                socket.on('message', function(data) {
+                    addMessage(data);
+                });
+                $( "#chatForm" ).submit(function( event ) {
+                    event.preventDefault();
+                    console.log($("#message").val());
+                    $.ajax({
+                        type: "POST",
+                        url: "/chat", 
+                        data: $("#chatForm").serialize()
+                        });
+                    console.log("after");
+
+                });
+            });
+        </script>
+        <style>
+    .container {
+            padding: 20px;
+            margin: 20px;
+        }
+
+        #target .msg {
+            color: hsl(40, 90%, 48%);
+            font-size: 20pt;
+        }
+
         body {
             font-family: "Roboto";
         }
@@ -74,7 +119,19 @@
             {% endblock %}
             {% block extra_body %}
             {% endblock extra_body %}
+        </div>
+    </div>
+        <div class="container-fluid">
+            <h1>Chat</h1>
+            <div id="target" class="well">
+                <!-- messages we receive through sockets will be here -->
             </div>
+            <form class="form" id="chatForm">
+                <div class="form-group">
+                    <input class="form-control" type="text" name="message" id="message" placeholder="enter your message"></input>
+                    <button type="submit" class="btn btn-success">Send</button>
+                </div>
+            </form>
         </div>
     </body>
 </html>
