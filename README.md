@@ -11,7 +11,8 @@ That means Whizbang ships with support for creating ORM-backed CRUD
 applications, NoSQL REST APIs, real-time applications using Websockets, and
 simple, mostly static page applications.
 
-To this end, Whizbang includes the following tools/libraries:
+To this end, Whizbang will include the tools/libraries listed below. Of course,
+it's still in its infancy, so many of the items below are vaporware.
 
 ### `search`
 
@@ -106,10 +107,46 @@ This gives you the following, for free:
 
 ![Resources shot](/images/resources.png)
 
-###### View/edit object
+By adding a `sockets.py` file with the following contents (and creating a new
+route function using the `route` decorator):
 
-![Single object shot](/images/resource.png)
+```python
+from socketio.namespace import BaseNamespace
 
-##### NoSQL REST API application
 
+class ChatNamespace(BaseNamespace):
+    sockets = {}
 
+    def on_chat(self, msg):
+        self.emit('chat', msg)
+
+    def recv_connect(self):
+        self.sockets[id(self)] = self
+
+    def disconnect(self, *args, **kwargs):
+        if id(self) in self.sockets:
+            del self.sockets[id(self)]
+        super(ChatNamespace, self).disconnect(*args, **kwargs)
+
+    @classmethod
+    def broadcast(self, event, message):
+        for ws in self.sockets.values():
+            ws.emit(event, message)
+```
+
+(in `runserver.py`):
+
+```python
+@app.route('/chat', methods=['POST'])
+def chat(request):
+    """Route chat posts to the *chat* handler function. Broadcast the message
+    to all users."""
+    message = '{}: {}'.format(request.form['user'], request.form['message'])
+    if message:
+        ChatNamespace.broadcast('message', message)
+    return Response()
+```
+
+You now have free real-time chat that degrades gracefully via socket.io. Connect
+two browsers to the root page and type a message in one browser. It will pop up
+in the chat area of the other browser.

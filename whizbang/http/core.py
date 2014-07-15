@@ -69,7 +69,7 @@ class WebApplication(object):
         A reasonably complete set of RESTful endpoints are created/supported,
         with support for all HTTP methods as well as form-based manipulation of
         resources.
-        
+
         :param cls: The ORM class to register.
         :type cls: :class:`whizbang.http.orm.model.Resource`
         :param resource_view_class: The class to generate the resource's views
@@ -98,7 +98,8 @@ class WebApplication(object):
         """Register a socketio namespace class at the given *endpoint*.
 
         :param str endpoint: The endpoint (i.e. '/chat') to register.
-        :param namespace_class: SocketIO Namespace to register at the given endpoint.
+        :param namespace_class: SocketIO Namespace to register at the
+                                given endpoint.
         :type namespace_class: :class:`socketio.namespace.BaseNamespace`
         """
         self._namespaces[endpoint] = namespace_class
@@ -117,7 +118,11 @@ class WebApplication(object):
         """
         def decorator(f):
             methods = kwargs.pop('methods', None)
-            self.url_map.add(Rule(rule, endpoint=rule, methods=methods, *kwargs))
+            self.url_map.add(Rule(
+                rule,
+                endpoint=rule,
+                methods=methods,
+                *kwargs))
             self._routes[rule] = f
             return f
         return decorator
@@ -140,7 +145,7 @@ class WebApplication(object):
             return Response()
         else:
             response = urls.dispatch(
-            lambda e, v: self._routes[e](
+                lambda e, v: self._routes[e](
                     request, **v))
             if isinstance(response, (unicode, str)):
                 headers = {'Content-type': 'text/html'}
@@ -153,9 +158,9 @@ class WebApplication(object):
 
     def wsgi_app(self, environ, start_response):
         """Return a response to the request described by *environ*.
-        
-        Invokes the application object as a WSGI application and returns an HTTP
-        Response.
+
+        Invokes the application object as a WSGI application and returns an
+        HTTP Response.
 
         :param environ: The current environment variables.
         :param start_response: A callable to provide the response.
@@ -183,9 +188,11 @@ class WebApplication(object):
 
         if debug is not None:
             self.debug = debug
-        print self.url_map
-        SocketIOServer(('0.0.0.0', 5000), SharedDataMiddleware(self, {}),
-            namespace="socket.io", policy_server=False).serve_forever()
+        SocketIOServer(
+            ('0.0.0.0', 5000),
+            SharedDataMiddleware(self, {}),
+            resource="socket.io",
+            policy_server=False).serve_forever()
 
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)

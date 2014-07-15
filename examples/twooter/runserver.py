@@ -10,17 +10,20 @@ from sockets import ChatNamespace
 
 app = create_app(__name__)
 
+
 @app.route('/chat', methods=['POST'])
 def chat(request):
-    message = request.form['message']
+    """Route chat posts to the *chat* handler function. Broadcast the message
+    to all users."""
+    message = '{}: {}'.format(request.form['user'], request.form['message'])
     if message:
         ChatNamespace.broadcast('message', message)
     return Response()
 
 
 if __name__ == '__main__':
-    engine = create_engine('postgresql+psycopg2://jknupp@localhost/whizbang')
-    app.engine(engine)
+    app.engine(create_engine(
+        'postgresql+psycopg2://jknupp@localhost/whizbang'))
     app.orm_resource(Twoot)
     app.orm_resource(User)
     app.namespace('/chats', ChatNamespace)

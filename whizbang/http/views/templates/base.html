@@ -82,7 +82,7 @@
         header h1 {
             font-size: 38px;
             font-weight: 900;
-            background-color: #f4f4f4;
+            background-color: yellow;
         }
         .form-panel {
             padding: 10px;
@@ -99,10 +99,12 @@
     <body>
         <header>
             <h1>WHIZBANG!</h1>
-            <h3><a href="/">Home</a></h3>
             <hr/>
         </header>
         <div class="container-fluid">
+            {% block breadcrumb %}
+            <h3><a href="/">Home</a></h3>
+            {% endblock breadcrumb %}
             <div class="col-md-8 col-md-offset-2">
             {% if messages %}
                 <div class="alert alert-danger">
@@ -123,16 +125,21 @@
         </div>
     </div>
         <div class="container-fluid">
-            <h1>Chat</h1>
+            <h1>Live User Chat</h1>
             <div id="target" class="well">
                 <!-- messages we receive through sockets will be here -->
             </div>
-            <form class="form" id="chatForm">
-                <div class="form-group">
-                    <input class="form-control" type="text" name="message" id="message" placeholder="enter your message"></input>
-                    <button type="submit" class="btn btn-success">Send</button>
-                </div>
-            </form>
+            <div class="col-md-2">
+                <form class="form" id="chatForm">
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="user" id="user" placeholder="User name"></input>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" rows=3 name="message" id="message" placeholder="enter your message"></textarea>
+                    </div>
+                        <button type="submit" class="btn btn-success">Send</button>
+                </form>
+            </div>
         </div>
     </body>
 </html>

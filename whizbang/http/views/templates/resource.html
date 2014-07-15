@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% block breadcrumb %}
+<h3><a href="/">Home / {{ name }}</a></h3>
+{% endblock breadcrumb %}
 {% block content %}
 
     <h1>{{ name|capitalize }}</h1>
