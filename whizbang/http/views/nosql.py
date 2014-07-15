@@ -7,7 +7,8 @@ from werkzeug import Response
 
 from whizbang.kvs.server import KVStore
 from whizbang.http.utils import make_response
-from whizbang.http.resource import DATE
+
+DATE = re.compile("\d+-\d+-\d+ \d+:\d+:\d+")
 
 
 class NoSQLResourceView(object):

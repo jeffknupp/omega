@@ -62,9 +62,9 @@ class WebApplication(object):
         self.url_map.add(Rule('/' + resource.name + '/<string:primary_key>', endpoint=resource.name))
         self._routes[resource.name] = NoSQLResourceView(resource)
 
-    def orm_resource(self, cls):
+    def orm_resource(self, cls, resource_view_class=ORMResourceView):
         """Register an ORM resource at an endpoint defined by the class's
-        '__endpoint__' attribute.
+        *__endpoint__* attribute.
 
         A reasonably complete set of RESTful endpoints are created/supported,
         with support for all HTTP methods as well as form-based manipulation of
@@ -72,10 +72,13 @@ class WebApplication(object):
         
         :param cls: The ORM class to register.
         :type cls: :class:`whizbang.http.orm.model.Resource`
+        :param resource_view_class: The class to generate the resource's views
+                                    from. This should be a subclass of
+                                    :class:`whizbang.http.views.orm.ORMResourceView`
         """
         name = cls.endpoint()[1:]
         self._orm_resources.append(name)
-        orm_view = ORMResourceView(name, cls, self.Session)
+        orm_view = resource_view_class(name, cls, self.Session)
         self.url_map.add(Rule('/' + name, endpoint='get_{}s'.format(name), methods=['GET']))
         self.url_map.add(Rule('/' + name, endpoint='post_{}'.format(name), methods=['POST']))
         self.url_map.add(Rule('/' + name + '/<string:primary_key>', endpoint='get_{}'.format(name), methods=['GET']))
@@ -96,7 +99,7 @@ class WebApplication(object):
 
         :param str endpoint: The endpoint (i.e. '/chat') to register.
         :param namespace_class: SocketIO Namespace to register at the given endpoint.
-        :type namespace_class :class:`socketio.namespace.BaseNamespace:
+        :type namespace_class: :class:`socketio.namespace.BaseNamespace`
         """
         self._namespaces[endpoint] = namespace_class
 
@@ -180,6 +183,7 @@ class WebApplication(object):
 
         if debug is not None:
             self.debug = debug
+        print self.url_map
         SocketIOServer(('0.0.0.0', 5000), SharedDataMiddleware(self, {}),
             namespace="socket.io", policy_server=False).serve_forever()
 

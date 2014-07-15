@@ -44,14 +44,6 @@ whizbang.http.resource module
     :undoc-members:
     :show-inheritance:
 
-whizbang.http.socket_io module
-------------------------------
-
-.. automodule:: whizbang.http.socket_io
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 whizbang.http.utils module
 --------------------------
 

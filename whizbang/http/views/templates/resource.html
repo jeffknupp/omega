@@ -3,6 +3,7 @@
 {% block content %}
 
     <h1>{{ name|capitalize }}</h1>
+    <h3><a href="/{{ name }}">list all {{ name }}s</a></h3>
     <hr/>
     <form role="form" class="form" action="{{ resource.url() }}/edit" method="post">
         {% for field in form %}
