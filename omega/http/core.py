@@ -1,7 +1,7 @@
-"""Whizbang's core HTTP module.
+"""Omega's core HTTP module.
 
 Application objects are created by instantiating the 
-:class:`whizbang.http.core.WebApplication` class.
+:class:`omega.http.core.WebApplication` class.
 """
 from sqlalchemy.orm import sessionmaker
 
@@ -9,12 +9,12 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 from werkzeug import run_simple
 
-from whizbang.http.views.template import TemplateView
-from whizbang.http.views.static import StaticFileView
-from whizbang.http.views.nosql import NoSQLResourceView
-from whizbang.http.views.orm import ORMResourceView
-from whizbang.http.views.generated import GeneratedIndexView
-from whizbang.http.orm import Model
+from omega.http.views.template import TemplateView
+from omega.http.views.static import StaticFileView
+from omega.http.views.nosql import NoSQLResourceView
+from omega.http.views.orm import ORMResourceView
+from omega.http.views.generated import GeneratedIndexView
+from omega.http.orm import Model
 from werkzeug.wsgi import SharedDataMiddleware
 
 from socketio.server import SocketIOServer
@@ -71,10 +71,10 @@ class WebApplication(object):
         resources.
 
         :param cls: The ORM class to register.
-        :type cls: :class:`whizbang.http.orm.model.Resource`
+        :type cls: :class:`omega.http.orm.model.Resource`
         :param resource_view_class: The class to generate the resource's views
                                     from. This should be a subclass of
-                                    :class:`whizbang.http.views.orm.ORMResourceView`
+                                    :class:`omega.http.views.orm.ORMResourceView`
         """
         name = cls.endpoint()[1:]
         self._orm_resources.append(name)

@@ -4,7 +4,7 @@ from jinja2 import Environment, PackageLoader
 from werkzeug import redirect
 from wtforms.ext.sqlalchemy.orm import model_form
 
-from whizbang.http.utils import make_response
+from omega.http.utils import make_response
 
 
 class ORMResourceView(object):
@@ -15,7 +15,7 @@ class ORMResourceView(object):
         self.cls = cls
         self._session = session()
         self.form = model_form(self.cls, self._session) 
-        self.env = Environment(loader=PackageLoader('whizbang.http.views'))
+        self.env = Environment(loader=PackageLoader('omega.http.views'))
 
     def handle_get(self, request, primary_key):
         """Return a response for a get request for a specific resource.

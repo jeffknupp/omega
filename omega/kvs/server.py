@@ -1,5 +1,5 @@
 import zmq
-from whizbang.kvs.message import CommandMessage, StatusMessage
+from omega.kvs.message import CommandMessage, StatusMessage
 
 class KVStore(object):
     def __init__(self):

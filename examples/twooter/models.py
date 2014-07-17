@@ -1,6 +1,6 @@
 import datetime
 
-from whizbang.http.orm import (
+from omega.http.orm import (
     Model,
     Column,
     String,

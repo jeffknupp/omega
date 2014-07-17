@@ -5,8 +5,8 @@ import uuid
 
 from werkzeug import Response
 
-from whizbang.kvs.server import KVStore
-from whizbang.http.utils import make_response
+from omega.kvs.server import KVStore
+from omega.http.utils import make_response
 
 DATE = re.compile("\d+-\d+-\d+ \d+:\d+:\d+")
 

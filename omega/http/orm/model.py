@@ -1,4 +1,4 @@
-"""Whizbang's ORM module."""
+"""Omega's ORM module."""
 from sqlalchemy.ext.declarative import declarative_base
 
 

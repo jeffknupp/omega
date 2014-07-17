@@ -5,9 +5,9 @@ import threading
 
 import pytest
 
-from whizbang.kvs.server import KVStore, Server
-from whizbang.kvs.client import Client
-from whizbang.kvs.message import CommandMessage, StatusMessage
+from omega.kvs.server import KVStore, Server
+from omega.kvs.client import Client
+from omega.kvs.message import CommandMessage, StatusMessage
 
 @pytest.yield_fixture
 def server():

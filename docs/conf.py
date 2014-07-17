@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Whizbang documentation build configuration file, created by
+# Omega documentation build configuration file, created by
 # sphinx-quickstart on Sun Jun 15 21:44:48 2014.
 #
 # This file is execfile()d with the current directory set to its
@@ -48,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Whizbang'
+project = u'Omega'
 copyright = u'2014, Jeff Knupp'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -181,7 +181,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Whizbangdoc'
+htmlhelp_basename = 'Omegadoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -201,7 +201,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'Whizbang.tex', u'Whizbang Documentation',
+  ('index', 'Omega.tex', u'Omega Documentation',
    u'Jeff Knupp', 'manual'),
 ]
 
@@ -231,7 +231,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'whizbang', u'Whizbang Documentation',
+    ('index', 'omega', u'Omega Documentation',
      [u'Jeff Knupp'], 1)
 ]
 
@@ -245,8 +245,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Whizbang', u'Whizbang Documentation',
-   u'Jeff Knupp', 'Whizbang', 'One line description of project.',
+  ('index', 'Omega', u'Omega Documentation',
+   u'Jeff Knupp', 'Omega', 'One line description of project.',
    'Miscellaneous'),
 ]
 

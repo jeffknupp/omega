@@ -1,4 +1,4 @@
-"""Utilities for the whizbang http module."""
+"""Utilities for the omega http module."""
 
 from werkzeug import Response
 

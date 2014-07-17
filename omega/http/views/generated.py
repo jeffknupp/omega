@@ -1,7 +1,7 @@
 """Module responsible for generating an "index" view (root page, or home page,
 view) from available routes."""
 from jinja2 import Environment, PackageLoader
-from whizbang.http.utils import make_response
+from omega.http.utils import make_response
 
 
 class GeneratedIndexView(object):
@@ -9,7 +9,7 @@ class GeneratedIndexView(object):
     routes as context data."""
     def __init__(self, routes):
         self.routes = routes
-        self.env = Environment(loader=PackageLoader('whizbang.http.views'))
+        self.env = Environment(loader=PackageLoader('omega.http.views'))
         self.template = self.env.get_template('index.html')
 
     def __call__(self, request):

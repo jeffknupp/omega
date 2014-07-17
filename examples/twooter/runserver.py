@@ -1,6 +1,6 @@
 """Code for the Twooter application."""
 from werkzeug import Response
-from whizbang.http.core import create_app
+from omega.http.core import create_app
 from sqlalchemy import create_engine
 from gevent import monkey
 monkey.patch_all()
@@ -23,7 +23,7 @@ def chat(request):
 
 if __name__ == '__main__':
     app.engine(create_engine(
-        'postgresql+psycopg2://jknupp@localhost/whizbang'))
+        'postgresql+psycopg2://jknupp@localhost/omega'))
     app.orm_resource(Twoot)
     app.orm_resource(User)
     app.namespace('/chats', ChatNamespace)

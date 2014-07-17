@@ -3,9 +3,9 @@ from __future__ import absolute_import
 import logging
 
 import zmq
-from whizbang.queue import serialization
+from omega.queue import serialization
 
-from whizbang.queue.message import Message
+from omega.queue.message import Message
 from config.settings import CONFIG
 
 LOGGER = logging.getLogger(__name__)

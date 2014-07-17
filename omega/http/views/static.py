@@ -1,6 +1,6 @@
 """Module containing code to serve static files."""
 import os
-from whizbang.http.utils import make_response, mimetype_for_path
+from omega.http.utils import make_response, mimetype_for_path
 
 
 class StaticFileView(object):

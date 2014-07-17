@@ -1,6 +1,6 @@
 import zmq
 
-from whizbang.kvs.message import CommandMessage
+from omega.kvs.message import CommandMessage
 
 class Client(object):
 

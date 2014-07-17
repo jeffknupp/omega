@@ -1,7 +1,7 @@
 """Module for creating views that simply render a template."""
 
 from jinja2 import Environment, FileSystemLoader
-from whizbang.http.utils import make_response
+from omega.http.utils import make_response
 
 
 class TemplateView(object):

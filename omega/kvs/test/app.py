@@ -1,7 +1,7 @@
 import threading
 
-from whizbang.kvs.server import Server
-from whizbang.kvs.client import Client
+from omega.kvs.server import Server
+from omega.kvs.client import Client
 
 def main():
     server = Server(9090)
