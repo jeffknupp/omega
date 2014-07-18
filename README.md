@@ -1,17 +1,17 @@
-# Whizbang!
+# Omega!
 
-**Whizbang - The web *platform* that "has an app for that"**
+**Omega - The web *platform* that "has an app for that"**
 
-## What is Whizbang?
+## What is Omega?
 
-Whizbang is an attempt to bring back innovation to Python web frameworks. Its
-goal is to be more than a web framework; Whizbang aims to be a platform
+Omega is an attempt to bring back innovation to Python web frameworks. Its
+goal is to be more than a web framework; Omega aims to be a platform
 on which *any* type of web application can be built, batteries included.
-That means Whizbang ships with support for creating ORM-backed CRUD
+That means Omega ships with support for creating ORM-backed CRUD
 applications, NoSQL REST APIs, real-time applications using Websockets, and
 simple, mostly static page applications.
 
-To this end, Whizbang will include the tools/libraries listed below. Of course,
+To this end, Omega will include the tools/libraries listed below. Of course,
 it's still in its infancy, so many of the items below are vaporware.
 
 ### `search`
@@ -53,8 +53,8 @@ build in an instant:
 
 ```python
 
-from whizbang.http.core import create_app
-from whizbang.http.orm import create_engine
+from omega.http.core import create_app
+from omega.http.orm import create_engine
 from werkzeug import run_simple
 from models import Twoot, User
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
 import datetime
 
-from whizbang.http.orm import Model, Column, String, DateTime, Integer, relationship, ForeignKey
+from omega.http.orm import Model, Column, String, DateTime, Integer, relationship, ForeignKey
 
 class User(Model):
     __tablename__ = 'user'
