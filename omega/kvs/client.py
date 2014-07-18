@@ -1,6 +1,5 @@
 import zmq
 
-from omega.kvs.message import CommandMessage
 
 class Client(object):
 
@@ -10,15 +9,19 @@ class Client(object):
         self._socket.connect('tcp://localhost:{}'.format(port))
 
     def get(self, key):
-        message = CommandMessage('get', key)
-        self._socket.send_pyobj(message)
-        response = self._socket.recv_pyobj()
-        print response.outcome, response.value
+        message = {'command': 'GET', 'value': key}
+        self._socket.send_json(message)
+        response = self._socket.recv_json()
         return response
 
     def put(self, key, value):
-        message = CommandMessage('put', (key, value))
-        self._socket.send_pyobj(message)
-        response = self._socket.recv_pyobj()
-        print response.outcome, response.value
+        message = {'command': 'PUT', 'key': key, 'value': value}
+        self._socket.send_json(message)
+        response = self._socket.recv_json()
         return response
+
+
+if __name__ == '__main__':
+    c = Client(9090)
+    print c.put('foo', 'bar')
+    print c.get('foo')
