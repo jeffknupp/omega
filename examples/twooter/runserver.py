@@ -22,10 +22,14 @@ def chat(request):
 
 
 if __name__ == '__main__':
+    # Set the SQLAlchemy database engine
     app.engine(create_engine(
         'postgresql+psycopg2://jknupp@localhost/omega'))
+    # Auto-generate an ORM resource view from the given models
     app.orm_resource(Twoot)
     app.orm_resource(User)
+    # Create a socketio endpoint for chatting
     app.namespace('/chats', ChatNamespace)
+    # Auto generate a home page for the project
     app.auto_generate_home()
     app.run(debug=True)
